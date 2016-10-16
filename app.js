@@ -15,18 +15,15 @@ const session = require('koa-session');
 const adapt = require('koa-adapter-bluebird'); // uses bluebird-co for performance
 const helmet = require('koa-helmet');
 const etag = require('koa-etag');
-
 const Koa = require('koa');
-
 const app = module.exports = new Koa();
-
 const logger = Morgan('combined');
 
 app.use(adapt(favicon(require.resolve('./public/favicon.ico'))));
 app.use(adapt(require('koa-response-time')()));
 app.use(adapt(conditional()));
 app.use(adapt(etag()));
-app.use(logger);
+//app.use(logger);
 
 app.use(adapt(Compress({
     flush: require('zlib').Z_SYNC_FLUSH
@@ -69,8 +66,15 @@ app.use( (ctx, next) => {
 const router = require('koa-router')();
 
 router.get('/', (ctx, next) => {
-    ctx.status = 200;
-    ctx.body = 'Hello world from worker ' + (cluster.worker ? cluster.worker.id : '') + '!';
+    return co(function *() {
+        ctx.status = 200;
+        // console.log("waiting for 3s");
+        // yield Promise.delay(3000);
+        // console.log("waiting for 5s");
+        // yield Promise.delay(5000);
+        ctx.body = 'Hello world from worker ' + (cluster.worker ? cluster.worker.id : '') + '!';
+    })();
+
 })
 
 router.get('/api/example', (ctx, next) => {
