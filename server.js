@@ -1,8 +1,8 @@
 'use strict';
 // console.log('Starting TLS server at ' + (new Date).toISOString());
-process.on('exit', function () {
-	console.log('Process exit at ' + (new Date).toISOString());
-});
+// process.on('exit', function () {
+// 	console.log('Process exit at ' + (new Date).toISOString());
+// });
 
 const Promise = require('bluebird');
 const co = Promise.coroutine;

@@ -18,6 +18,14 @@ const etag = require('koa-etag');
 const Koa = require('koa');
 const app = module.exports = new Koa();
 const logger = Morgan('combined');
+const router = require('koa-router')();
+
+// ejs example
+const render = require('koa-ejs');
+const path = require('path');
+// marko render
+// http://psteeleidem.com/marko-versus-dust/
+const marko = require('marko');
 
 app.use(adapt(favicon(require.resolve('./public/favicon.ico'))));
 app.use(adapt(require('koa-response-time')()));
@@ -63,7 +71,7 @@ app.use( (ctx, next) => {
     })();
 });
 
-const router = require('koa-router')();
+
 
 router.get('/', (ctx, next) => {
     return co(function *() {
@@ -90,9 +98,7 @@ router.get('/api/error', (ctx, next) => {
     throw new Error('Hurr durr!');
 })
 
-// ejs example
-const render = require('koa-ejs');
-const path = require('path');
+
 
 render(app, {
   root: path.join(__dirname, 'view'),
@@ -109,9 +115,7 @@ router.get('/myip', (ctx, next) => co(function *() {
     })()
 );
 
-// marko render
-// http://psteeleidem.com/marko-versus-dust/
-const marko = require('marko');
+
 
 router.get('/marko', (ctx, next) => {
     let ip = ctx.ip;
