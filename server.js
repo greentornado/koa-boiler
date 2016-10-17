@@ -17,14 +17,15 @@ const os = require('os');
 const http = require('http');
 const httpMode = "http";
 
-if (httpMode === "http") {
-	var port = 8080;
-} else {
+if (config.ssl_mode) {
 	if (process.getuid() === 0) { // if we are root
 		var port = 443;
 	} else { // we are not root, can only use sockets >1024
 		var port = 8443;
 	}
+
+} else {
+	var port = 8080;
 }
 
 const runHttpServer = co(function* () {
@@ -32,11 +33,15 @@ const runHttpServer = co(function* () {
 	function getServer() {
 
 		const server = http.createServer(app.callback())
-		const io = socketIo.listen(server);
 
-		io.on('connection', function (socket) {
-			// TODO: do stuff with socket
-		})
+		if (config.socketio) {
+			const io = socketIo.listen(server);
+
+			io.on('connection', function (socket) {
+				// TODO: do stuff with socket
+			})
+		}
+
 
 		return server;
 	}
@@ -81,11 +86,14 @@ const runTLSServer = co(function* () { // same as an async function; allows use 
 
 	function getServer() {
 		const server = spdy.createServer(credentials, app.callback());
-		const io = socketIo.listen(server);
 
-		io.on('connection', function (socket) {
-			// TODO: do stuff with socket
-		})
+		if (config.socketio) {
+			const io = socketIo.listen(server);
+
+			io.on('connection', function (socket) {
+				// TODO: do stuff with socket
+			})
+		}
 
 		return server;
 	}
@@ -116,5 +124,8 @@ const runTLSServer = co(function* () { // same as an async function; allows use 
 	}
 });
 
-
-runHttpServer();
+if (config.ssl_mode) {
+	runTLSServer();
+} else {
+	runHttpServer();
+}

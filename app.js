@@ -26,6 +26,18 @@ const path = require('path');
 // marko render
 // http://psteeleidem.com/marko-versus-dust/
 const marko = require('marko');
+const config = require('./config.json');
+
+let MongoClient = require('mongodb').MongoClient;
+Promise.promisifyAll(MongoClient);
+const phones_collection;
+const db;
+
+co(function*() {
+    db = yield MongoClient.connectAsync(config.mongo_uri);
+    phones_collection = db.collection('phones');
+})();
+
 
 app.use(adapt(favicon(require.resolve('./public/favicon.ico'))));
 app.use(adapt(require('koa-response-time')()));
@@ -34,107 +46,104 @@ app.use(adapt(etag()));
 //app.use(logger);
 
 app.use(adapt(Compress({
-    flush: require('zlib').Z_SYNC_FLUSH
+	flush: require('zlib').Z_SYNC_FLUSH
 })));
 app.keys = ['some secret hurr'];
 
 app.use(adapt(session({
-    maxAge: 24 * 60 * 60 * 1000 // One Day
+	maxAge: 24 * 60 * 60 * 1000 // One Day
 }, app)));
 
 app.use(adapt(bodyParser));
 
 // Example error handler to JSON stringify errors
-app.use( (ctx, next) => {
-    return co(function *() {
-        try {
-            yield next();
-        } catch (err) {
-            if (err == null) {
-                err = new Error('Null or undefined error');
-            }
-            // some errors will have .status
-            // however this is not a guarantee
-            ctx.status = err.status || 500;
-            ctx.type = 'application/json';
-            ctx.body = JSON.stringify({
-                success: false,
-                message: err.stack
-            })
+app.use((ctx, next) => {
+	return co(function* () {
+		try {
+			yield next();
+		} catch (err) {
+			if (err == null) {
+				err = new Error('Null or undefined error');
+			}
+			// some errors will have .status
+			// however this is not a guarantee
+			ctx.status = err.status || 500;
+			ctx.type = 'application/json';
+			ctx.body = JSON.stringify({
+				success: false,
+				message: err.stack
+			})
 
-            // since we handled this manually we'll
-            // want to delegate to the regular app
-            // level error handling as well so that
-            // centralized still functions correctly.
-            ctx.app.emit('error', err, this);
-        }
-    })();
+			// since we handled this manually we'll
+			// want to delegate to the regular app
+			// level error handling as well so that
+			// centralized still functions correctly.
+			ctx.app.emit('error', err, this);
+		}
+	})();
 });
 
 
 
 router.get('/', (ctx, next) => {
-    return co(function *() {
-        ctx.status = 200;
-        // console.log("waiting for 3s");
-        // yield Promise.delay(3000);
-        // console.log("waiting for 5s");
-        // yield Promise.delay(5000);
-        ctx.body = 'Hello world from worker ' + (cluster.worker ? cluster.worker.id : '') + '!';
-    })();
+	return co(function* () {
+		ctx.status = 200;
+        let apiCall = yield collection.findOne({"phone": "01676666669"});
+        // console.log(JSON.stringify(apiCall));
+		ctx.body = 'Hello world from worker ' + (cluster.worker ? cluster.worker.id : '') + '!' + JSON.stringify(apiCall);
+	})();
 
 })
 
 router.get('/api/example', (ctx, next) => {
 
-    return co(function *() {
-        yield Promise.delay(3000);
-        ctx.response.body = "Simple Async 3-second Delayed Example!";
-    })();
+	return co(function* () {
+		yield Promise.delay(3000);
+		ctx.response.body = "Simple Async 3-second Delayed Example!";
+	})();
 })
 
 router.get('/api/error', (ctx, next) => {
-    // Example showing error throwing
-    throw new Error('Hurr durr!');
+	// Example showing error throwing
+	throw new Error('Hurr durr!');
 })
 
 
 
 render(app, {
-  root: path.join(__dirname, 'view'),
-  layout: 'template',
-  viewExt: 'html',
-  cache: false,
-  debug: true
+	root: path.join(__dirname, 'view'),
+	layout: 'template',
+	viewExt: 'html',
+	cache: false,
+	debug: true
 });
 
 // ejs render
-router.get('/myip', (ctx, next) => co(function *() {
-        ctx.state.ip = ctx.ip;
-        yield ctx.render('myip');
-    })()
-);
+router.get('/myip', (ctx, next) => co(function* () {
+	ctx.state.ip = ctx.ip;
+	yield ctx.render('myip');
+})());
 
 
 
 router.get('/marko', (ctx, next) => {
-    let ip = ctx.ip;
+	let ip = ctx.ip;
 
-    let data = {
-        ip: ip,
-        ip2: co(function *() {
-            yield Promise.delay(3000);
-            return '3 seconds';
-        })(),
-        ip3: co(function *() {
-            yield Promise.delay(5000);
-            return '5 seconds';
-        })(),
-    };
+	let data = {
+		ip: ip,
+		ip2: co(function* () {
+			yield Promise.delay(3000);
+			return '3 seconds';
+		})(),
+		ip3: co(function* () {
+			yield Promise.delay(5000);
+			return '5 seconds';
+		})(),
+	};
 
-    // When body is a stream, Koa automatically streams it to the client.
-    ctx.body = marko.load(require.resolve('./view/ip.marko')).stream(data);
-    ctx.type = 'text/html; charset=utf-8';
+	// When body is a stream, Koa automatically streams it to the client.
+	ctx.body = marko.load(require.resolve('./view/ip.marko')).stream(data);
+	ctx.type = 'text/html; charset=utf-8';
 });
 
 

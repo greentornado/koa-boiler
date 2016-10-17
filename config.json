@@ -1,3 +1,7 @@
 {
-	"cluster": true
+	"cluster": false,
+	"ssl_mode": false,
+	"socketio": false,
+    "mongo_uri" : "mongodb://heroku_zmn15f1f:uvbotg0o2f35f8reim42o9k65n@ds053176.mlab.com:53176/heroku_zmn15f1f"
+
 }
