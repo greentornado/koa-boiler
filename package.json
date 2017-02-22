@@ -18,27 +18,33 @@
   },
   "homepage": "https://github.com/llambda/koaboiler#readme",
   "dependencies": {
-    "bluebird": "^3.4.0",
-    "koa": "^2.0.0",
+
+    "aphrodite": "^1.1.0",
+    "bluebird": "^3.4.6",
+    "html-template-tag": "^1.0.0",
+    "koa": "^2.0.0-alpha.7",
+
     "koa-adapter": "0.0.3",
     "koa-adapter-bluebird": "0.0.1",
-    "koa-bodyparser": "^2.2.0",
-    "koa-compress": "^1.0.9",
-    "koa-conditional-get": "^1.0.3",
+    "koa-bodyparser": "^3.2.0",
+    "koa-compress": "^2.0.0",
+    "koa-conditional-get": "^2.0.0",
     "koa-ejs": "^3.0.0",
-    "koa-etag": "^2.1.1",
-    "koa-favicon": "^1.2.1",
-    "koa-helmet": "^1.0.0",
+    "koa-etag": "^3.0.0",
+    "koa-favicon": "^2.0.0",
+    "koa-helmet": "^2.0.0",
     "koa-morgan": "^1.0.1",
-    "koa-response-time": "^1.0.2",
+    "koa-mount": "2.0.0",
+    "koa-response-time": "^2.0.0",
     "koa-router": "^7.0.1",
-    "koa-session": "^3.3.1",
-    "koa-static": "^2.0.0",
-    "marko": "^3.4.7",
-    "mongodb": "^2.2.10",
-    "pem": "^1.8.3",
-    "socket.io": "^1.4.6",
-    "socketio-sticky-session": "^0.4.2",
-    "spdy": "^3.3.3"
+
+    "koa-session": "^3.4.0",
+    "koa-static": "^3.0.0",
+    "marko": "^3.13.0",
+    "pem": "^1.9.4",
+    "socket.io": "^1.7.1",
+    "socketio-sticky-session": "git://github.com/wzrdtales/socket-io-sticky-session.git#2d0367fd7c80c727923f33d2ac11e34d0267ae4c",
+    "spdy": "^3.4.4"
+
   }
 }
